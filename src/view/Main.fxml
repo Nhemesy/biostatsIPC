@@ -2,6 +2,10 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.chart.AreaChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -14,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="650.0" style="-fx-background-color: AAE4CB;" stylesheets="@../style/StyleTabPane.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="931.0" style="-fx-background-color: AAE4CB;" stylesheets="@../style/StyleTabPane.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
    <children>
       <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="648.0" side="LEFT" stylesheets="@../style/StyleTabPane.css" tabClosingPolicy="UNAVAILABLE" tabMinHeight="50.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="-5.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
          <tabs>
@@ -44,12 +48,43 @@
             </Tab>
             <Tab text="Actividad">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="400.0" prefWidth="488.0" style="-fx-background-color: D5F5E8;" />
+                  <GridPane style="-fx-background-color: D5F5E8;">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="234.0" minHeight="0.0" prefHeight="0.6666616201400757" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="317.0" minHeight="10.0" prefHeight="106.33334350585938" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="296.6666564941406" minHeight="10.0" prefHeight="292.6666564941406" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <PieChart fx:id="heartZonePieChart" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actividad realizada el dia tal a las tal pascual hasta las tal tal" textAlignment="CENTER" wrappingWidth="791.2187805175781" GridPane.columnSpan="2">
+                           <font>
+                              <Font size="26.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </GridPane>
                </content>
             </Tab>
             <Tab text="Estadisticas">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: D5F5E8;" />
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: D5F5E8;">
+                     <children>
+                        <AreaChart fx:id="areachart" layoutX="10.0" layoutY="-1.0" prefHeight="608.0" prefWidth="785.0">
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </AreaChart>
+                     </children></AnchorPane>
                </content>
             </Tab>
          </tabs>
