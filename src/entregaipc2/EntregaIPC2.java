@@ -19,7 +19,7 @@ public class EntregaIPC2 extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("view/Main.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/view/Main.fxml"));
         
         Scene scene = new Scene(root);
         stage.setScene(scene);

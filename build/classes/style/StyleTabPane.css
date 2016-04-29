@@ -1,0 +1,57 @@
+
+/* 
+    Created on : Apr 26, 2016, 11:53:12 AM
+    Author     : PedroDavidLP
+*/
+.root { 
+    -fx-focus-color: transparent;
+}
+.tab *.tab-label {
+    -fx-rotate: 90;
+}
+
+.tab {
+    -fx-padding: 3em 0.5em 3em 0.5em;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane
+{
+    -fx-tab-min-width:90px;
+}
+
+.tab{
+    -fx-background-insets: 0 1 0 1,0,0;
+}
+.tab-pane .tab
+{
+    -fx-background-color: #7AC8A7;
+    -fx-skin: "com.sun.javafx.scene.control.skin.LabelSkin"; 
+    -fx-alignment: CENTER;
+    -fx-text-fill: -fx-text-base-color;
+   
+
+}
+.tab-pane .tab:focused
+{
+    -fx-focus-color:transparent;
+}
+.tab-pane .tab:selected
+{
+    -fx-background-color: #D5F5E8;
+}
+
+.tab .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: #000000;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: #000000;
+}
