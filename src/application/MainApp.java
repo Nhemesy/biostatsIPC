@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package entregaipc2;
+package application;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  *
  * @author PedroDavidLP
  */
-public class EntregaIPC2 extends Application {
+public class MainApp extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
