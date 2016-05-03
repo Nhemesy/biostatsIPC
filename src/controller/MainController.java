@@ -7,22 +7,42 @@ package controller;
 
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Side;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -39,7 +59,7 @@ import jgpx.model.jaxb.TrackPointExtensionT;
  * @author PedroDavidLP
  */
 public class MainController implements Initializable {
-    
+
     @FXML
     private PieChart heartZonePieChart;
     @FXML
@@ -67,95 +87,218 @@ public class MainController implements Initializable {
     @FXML
     private GridPane chartContainer;
     @FXML
-    private ComboBox<String> selectCharBox;
+    private ComboBox<String> selectChartBox;
+    public static TrackData currentTrackData;
+    @FXML
+    private Label percentageText;
+    @FXML
+    private StackPane stackPane;
+    @FXML
+    private AnchorPane root;
 
     /**
      * Initializes the controller class.
+     *
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        init();
+        SelectGPXController.controller=this;
+         Stage stage = new Stage();
+           FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SelectGPX.fxml"));
+            loader.setResources(null);
+            stage.setTitle("SeleccioneGPX");
+            
+            try {
+                Parent root1 = (Parent) loader.load();
+                stage.initModality(Modality.WINDOW_MODAL);
+                stage.setAlwaysOnTop(true);
+                stage.setScene(new Scene(root1));
+                stage.show();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
     }
-    
-    private void init() {
-        TrackData trackData = loadGpx("/Tracks/20160203-094110-Ride.gpx");
-        dayText.setText("Actividad realizada el dia " + trackData.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE));
-        durationText.setText("Tiempo total: "+formatDate(trackData.getTotalDuration().getSeconds()));
-        movementTimeText.setText("Tiempo en movimiento: "+formatDate(trackData.getMovingTime().getSeconds()));
-        distanceText.setText("Distancia recorrida: "+roundDouble(trackData.getTotalDistance())+" m");
-        altitudeText.setText("Desnivel acumulado: "+trackData.getAverageHeight());
-        velocityText.setText("Velocidad-> Media: "+roundDouble(trackData.getAverageSpeed())+" km/h"+" Maxima: "+roundDouble(trackData.getMaxSpeed())+" km/h");
-        maxHeartFrecuencyText.setText("Maxima frecuencia cardiaca:"+trackData.getMaxHeartrate());
-        minHeartFrecuencyText.setText("Minima frecuencia cardica: "+trackData.getMinHeartRate());
-        normalHeartFrecuencyText.setText("Minima frecuencia cardiaca: "+trackData.getAverageHeartrate());
-        maxCadenceText.setText("Maxima cadencia: "+trackData.getMaxCadence());
-        minCadenceText.setText("Cadencia media: "+trackData.getAverageCadence());
-        updateHeartChart(18);
-        selectCharBox.setItems(FXCollections.observableArrayList(new String[]{"Altura x Distancia","Velocidad x Distancia",
-           "FC x Distancia","Cadencia x Distancia"}));
-    }
-    
-    public TrackData loadGpx(String file) {
-        TrackData trackData = null;
-        try {
-            File f = new File(System.getProperty("user.dir") + file);
-            JAXBContext jaxbContext = JAXBContext.newInstance(GpxType.class, TrackPointExtensionT.class);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            JAXBElement<Object> root = (JAXBElement<Object>) unmarshaller.unmarshal(f);
-            GpxType gpx = (GpxType) root.getValue();
-            trackData = new TrackData(new Track(gpx.getTrk().get(0)));
-            ObservableList<Chunk> chunks = trackData.getChunks();
-        } catch (JAXBException ex) {
-            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return trackData;
-    }
-    public void updateHeartChart(int age){
-        
-     ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
-            new PieChart.Data("Z1 Recuperación", 13),
-            new PieChart.Data("Z2 Fondo", 25),
-            new PieChart.Data("Z3 Tempo", 10),
-            new PieChart.Data("Z4 Umbral", 22),
-            new PieChart.Data("Z5 Anaérobico", 30));
-     heartZonePieChart.setData(pieChartData);
-    }
-    
-    @FXML
-    private void prueba(ActionEvent event) throws JAXBException, IOException {
 
-        /**
-         * areachart.setTitle("Temperature Monitoring (in Degrees C)");
-         * XYChart.Series seriesApril = new XYChart.Series();
-         * seriesApril.setName("Distance per speed");
-         *
-         * for (int i = 0; i < 100; i++) {
-         * seriesApril.getData().add(new XYChart.Data("" + duration(i), speed(i)));
-         * }
-         * areachart.getData().addAll(seriesApril);
-         * Files.walk(Paths.get(System.getProperty("user.dir") + "/Tracks")).forEach(filePath ->
-         * { if (Files.isRegularFile(filePath)) { System.out.println(filePath);
-         * }
-        });
-         */
+    public void init() {
+        root.setDisable(false);
+        dayText.setText("Actividad realizada el dia " + currentTrackData.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        durationText.setText("Tiempo total: " + formatDate(currentTrackData.getTotalDuration().getSeconds()));
+        movementTimeText.setText("Tiempo en movimiento: " + formatDate(currentTrackData.getMovingTime().getSeconds()));
+        distanceText.setText("Distancia recorrida: " + roundDouble(currentTrackData.getTotalDistance()) + " m");
+        altitudeText.setText("Desnivel acumulado: " + currentTrackData.getAverageHeight());
+        velocityText.setText("Velocidad-> Media: " + roundDouble(currentTrackData.getAverageSpeed()) + " km/h" + " Maxima: " + roundDouble(currentTrackData.getMaxSpeed()) + " km/h");
+        maxHeartFrecuencyText.setText("Maxima frecuencia cardiaca:" + currentTrackData.getMaxHeartrate());
+        minHeartFrecuencyText.setText("Minima frecuencia cardica: " + currentTrackData.getMinHeartRate());
+        normalHeartFrecuencyText.setText("Minima frecuencia cardiaca: " + currentTrackData.getAverageHeartrate());
+        maxCadenceText.setText("Maxima cadencia: " + currentTrackData.getMaxCadence());
+        minCadenceText.setText("Cadencia media: " + currentTrackData.getAverageCadence());
+        updateHeartChart(35);
+        selectChartBox.setItems(FXCollections.observableArrayList(new String[]{"Altura x Distancia", "Velocidad x Distancia",
+            "FC x Distancia", "Cadencia x Distancia"}));
     }
-    
-    
-    public static String formatDate(long s){
-        String res="";
-        if(s/3600>0){
-            res+=(int)s/3600+" horas, ";
-            s=s-((int)s/3600)*3600;
+
+    public void updateHeartChart(int age) {
+        ObservableList<Chunk> list = currentTrackData.getChunks();
+        int[] heartZones = new int[]{0, 0, 0, 0, 0};
+        for (Chunk list1 : list) {
+            double heartRate = list1.getAvgHeartRate();
+            double maxFC = 220 - age;
+            if (heartRate < maxFC * 0.60) {
+                heartZones[0]++;
+            } else if (heartRate < maxFC * 0.70) {
+                heartZones[1]++;
+            } else if (heartRate < maxFC * 0.80) {
+                heartZones[2]++;
+            } else if (heartRate < maxFC * 0.90) {
+                heartZones[3]++;
+            } else {
+                heartZones[4]++;
+            }
         }
-        if(s/60>0){
-            res+=(int)s/60+" minutos y ";
-            s=s-((int)s/60)*60;
+
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
+                new PieChart.Data("Z1 Recuperación", heartZones[0] * 100 / list.size()),
+                new PieChart.Data("Z2 Fondo", heartZones[1] * 100 / list.size()),
+                new PieChart.Data("Z3 Tempo", heartZones[2] * 100 / list.size()),
+                new PieChart.Data("Z4 Umbral", heartZones[3] * 100 / list.size()),
+                new PieChart.Data("Z5 Anaérobico", heartZones[4] * 100 / list.size()));
+        heartZonePieChart.setData(pieChartData);
+        heartZonePieChart.setLabelLineLength(10);
+        heartZonePieChart.setLegendSide(Side.LEFT);
+        heartZonePieChart.setClockwise(false);
+        heartZonePieChart.setLabelsVisible(true);
+
+        for (final PieChart.Data data : heartZonePieChart.getData()) {
+            data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,
+                    new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent e) {
+                            percentageText.setText(String.valueOf(data.getPieValue()) + "%");
+                            percentageText.setVisible(true);
+                            percentageText.setVisible(false);
+                        }
+                    });
         }
-        res+=s+" segundos.";
-        
+
+    }
+
+
+
+    public static String formatDate(long s) {
+        String res = "";
+        if (s / 3600 > 0) {
+            res += (int) s / 3600 + " horas, ";
+            s = s - ((int) s / 3600) * 3600;
+        }
+        if (s / 60 > 0) {
+            res += (int) s / 60 + " minutos y ";
+            s = s - ((int) s / 60) * 60;
+        }
+        res += s + " segundos.";
+
         return res;
     }
-    public static double roundDouble(double d){
-        return (Math.round(d*100))/100;
+
+    public static double roundDouble(double d) {
+        return (Math.round(d * 100)) / 100;
+    }
+
+    @FXML
+    private void changeChart(ActionEvent event) {
+        ObservableList<Chunk> chuncks = currentTrackData.getChunks();
+        switch (selectChartBox.getSelectionModel().getSelectedItem().charAt(0)) {
+            case 'A':
+                areaChart(altitudePerDistance(chuncks));
+                break;
+            case 'V':
+                lineChart(speedPerDistance(chuncks));
+                break;
+            case 'F':
+                lineChart(fcPerDistance(chuncks));
+                break;
+            case 'C':
+                lineChart(cadencePerDistance(chuncks));
+                break;
+
+        }
+    }
+
+    private void lineChart(ObservableList a) {
+        chartContainer.getChildren().remove(1);
+        LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
+        lineChart.setData(a);
+        lineChart.setTitle("Hey");
+        lineChart.setMaxSize(1000000, 100000);
+        lineChart.setCreateSymbols(false);
+        GridPane.setColumnSpan(lineChart, 2);
+        chartContainer.add(lineChart, 0, 1);
+
+    }
+
+    private void areaChart(ObservableList a) {
+        chartContainer.getChildren().remove(1);
+        AreaChart areaChart = new AreaChart(new NumberAxis(), new NumberAxis());
+        areaChart.setData(a);
+        areaChart.setTitle("que tal");
+        areaChart.setMaxSize(1000000, 100000);
+        areaChart.setCreateSymbols(false);
+        GridPane.setColumnSpan(areaChart, 2);
+        chartContainer.add(areaChart, 0, 1);
+    }
+
+    private ObservableList<XYChart.Series<Double, Double>> altitudePerDistance(ObservableList<Chunk> list) {
+
+        ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
+        Series<Double, Double> series = new Series<>();
+        for (int i = 0; i < list.size(); i += list.size() / 50) {
+            series.getData().add(new XYChart.Data(list.get(i).getGrade(), list.get(i).getDistance()));
+
+        }
+        series.setName("Altitude per Distance");
+        res.addAll(series);
+        return res;
+    }
+
+    private ObservableList<XYChart.Series<Double, Double>> speedPerDistance(ObservableList<Chunk> list) {
+
+        ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
+        Series<Double, Double> series = new Series<>();
+
+        for (int i = 0; i < list.size(); i += list.size() / 50) {
+            series.getData().add(new XYChart.Data(list.get(i).getSpeed(), list.get(i).getDistance()));
+
+        }
+        series.setName("Altitude per Distance");
+        res.addAll(series);
+        return res;
+    }
+
+    private ObservableList<XYChart.Series<Double, Double>> fcPerDistance(ObservableList<Chunk> list) {
+
+        ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
+        Series<Double, Double> series = new Series<>();
+
+        for (int i = 0; i < list.size(); i += list.size() / 500) {
+            series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getAvgHeartRate()));
+
+        }
+        series.setName("Altitude per Distance");
+        res.addAll(series);
+        return res;
+    }
+
+    private ObservableList<XYChart.Series<Double, Double>> cadencePerDistance(ObservableList<Chunk> list) {
+
+        ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
+        Series<Double, Double> series = new Series<>();
+        for (int i = 0; i < list.size(); i += list.size() / 50) {
+            series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getAvgCadence()));
+
+        }
+        series.setName("Cadence per Distance");
+        res.addAll(series);
+        return res;
     }
 }

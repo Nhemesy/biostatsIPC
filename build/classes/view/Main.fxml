@@ -3,8 +3,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.effect.DisplacementMap?>
@@ -16,10 +17,11 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="931.0" style="-fx-background-color: AAE4CB;" stylesheets="@../style/StyleTabPane.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+<AnchorPane fx:id="root" disable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="931.0" style="-fx-background-color: AAE4CB;" stylesheets="@../style/StyleTabPane.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
    <children>
       <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="648.0" side="LEFT" stylesheets="@../style/StyleTabPane.css" tabClosingPolicy="UNAVAILABLE" tabMinHeight="50.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="-5.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
          <tabs>
@@ -42,7 +44,6 @@
                               <Font size="27.0" />
                            </font>
                         </Text>
-                        <Button mnemonicParsing="false" onAction="#prueba" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                      </children>
                   </GridPane>
                </content>
@@ -58,8 +59,8 @@
                     <rowConstraints>
                       <RowConstraints maxHeight="243.0" minHeight="0.0" prefHeight="105.95624160766602" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="450.0" minHeight="10.0" prefHeight="59.043758392333984" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="388.81830978393555" minHeight="3.0" prefHeight="117.47811889648438" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="301.4005889892578" minHeight="10.0" prefHeight="80.52188110351562" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="388.81830978393555" minHeight="3.0" prefHeight="134.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="301.4005889892578" minHeight="10.0" prefHeight="63.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="244.96237182617188" minHeight="10.0" prefHeight="101.42825317382812" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="176.37066650390625" minHeight="10.0" prefHeight="131.34072875976562" vgrow="SOMETIMES" />
                     </rowConstraints>
@@ -69,23 +70,38 @@
                               <Font size="26.0" />
                            </font>
                         </Text>
-                        <Text fx:id="durationText" strokeType="OUTSIDE" strokeWidth="0.0" text="Duracion de la actividad" wrappingWidth="280.21875" GridPane.rowIndex="1" />
-                        <Text fx:id="movementTimeText" strokeType="OUTSIDE" strokeWidth="0.0" text="Tiempo en movimiento" wrappingWidth="234.81100463867188" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Text fx:id="distanceText" strokeType="OUTSIDE" strokeWidth="0.0" text="Distancia recorrida" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Text fx:id="altitudeText" strokeType="OUTSIDE" strokeWidth="0.0" text="Desnivel acumulado" GridPane.rowIndex="2" />
-                        <Text fx:id="velocityText" strokeType="OUTSIDE" strokeWidth="0.0" text="Velocidad maxima y media" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Text fx:id="maxHeartFrecuencyText" strokeType="OUTSIDE" strokeWidth="0.0" text="Frecuencia cardiaca maxima" GridPane.rowIndex="3" />
+                        <Text fx:id="durationText" strokeType="OUTSIDE" strokeWidth="0.0" text="Duracion de la actividad" wrappingWidth="280.21875" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Text fx:id="movementTimeText" strokeType="OUTSIDE" strokeWidth="0.0" text="Tiempo en movimiento" wrappingWidth="234.81100463867188" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Text fx:id="distanceText" strokeType="OUTSIDE" strokeWidth="0.0" text="Distancia recorrida" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Text fx:id="altitudeText" strokeType="OUTSIDE" strokeWidth="0.0" text="Desnivel acumulado" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Text fx:id="velocityText" strokeType="OUTSIDE" strokeWidth="0.0" text="Velocidad maxima y media" GridPane.rowIndex="5" />
+                        <Text fx:id="maxHeartFrecuencyText" strokeType="OUTSIDE" strokeWidth="0.0" text="Frecuencia cardiaca maxima" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                         <Text fx:id="minHeartFrecuencyText" strokeType="OUTSIDE" strokeWidth="0.0" text="Frecuencia cardiaca minima" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Text fx:id="normalHeartFrecuencyText" strokeType="OUTSIDE" strokeWidth="0.0" text="Frecuencia cardiaca media" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                         <Text fx:id="maxCadenceText" strokeType="OUTSIDE" strokeWidth="0.0" text="Cadencia de pedaleo maxima" wrappingWidth="298.7628173828125" GridPane.rowIndex="4" />
                         <Text fx:id="minCadenceText" strokeType="OUTSIDE" strokeWidth="0.0" text="Cadencia de pedaleo media" wrappingWidth="298.7628173828125" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <PieChart fx:id="heartZonePieChart" blendMode="DARKEN" labelsVisible="false" title="Esfuerzo cardiaco" titleSide="BOTTOM" GridPane.columnIndex="2" GridPane.rowIndex="5">
-                           <cursor>
-                              <Cursor fx:constant="CROSSHAIR" />
-                           </cursor>
-                           <effect>
-                              <Glow />
-                           </effect></PieChart>
+                        <StackPane fx:id="stackPane" minHeight="200.0" minWidth="400.0" GridPane.columnSpan="3" GridPane.rowIndex="1" GridPane.rowSpan="2">
+                           <children>
+                              <Label fx:id="percentageText" text="Label" visible="false">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </Label>
+                              <PieChart fx:id="heartZonePieChart" blendMode="DARKEN" labelsVisible="false" title="Esfuerzo cardiaco" titleSide="BOTTOM">
+                                 <cursor>
+                                    <Cursor fx:constant="CROSSHAIR" />
+                                 </cursor>
+                                 <effect>
+                                    <Glow />
+                                 </effect>
+                              </PieChart>
+                           </children>
+                        </StackPane>
+                        <Label alignment="CENTER" text="Label" GridPane.halignment="CENTER" GridPane.rowIndex="5">
+                           <graphic>
+                              <ProgressBar prefWidth="200.0" progress="0.3" />
+                           </graphic>
+                        </Label>
                      </children>
                      <opaqueInsets>
                         <Insets />
@@ -98,27 +114,27 @@
             </Tab>
             <Tab text="Estadisticas">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: D5F5E8;">
+                  <GridPane fx:id="chartContainer" alignment="CENTER" style="-fx-background-color: D5F5E8;">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="696.3551025390625" minWidth="400.0" prefWidth="696.3551025390625" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="385.151611328125" minWidth="10.0" prefWidth="102.6448974609375" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="50.0" minHeight="30.0" prefHeight="34.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="586.0" minHeight="10.0" prefHeight="574.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
                      <children>
-                        <GridPane fx:id="chartContainer" layoutX="4.0" layoutY="3.0" prefHeight="613.0" prefWidth="799.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="696.3551025390625" minWidth="10.0" prefWidth="696.3551025390625" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="385.151611328125" minWidth="10.0" prefWidth="102.6448974609375" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints maxHeight="192.53646850585938" minHeight="0.0" prefHeight="89.13723754882812" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="514.2476043701172" minHeight="10.0" prefHeight="512.8627624511719" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                           <children>
-                              <ComboBox fx:id="selectCharBox" prefHeight="27.0" prefWidth="692.0" promptText="Seleccione gráfica" style="-fx-background-color: light;" />
-                              <ImageView fitHeight="502.0" fitWidth="659.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-                                 <image>
-                                    <Image url="@../Sin%20título-1.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </GridPane>
-                     </children></AnchorPane>
+                        <ComboBox fx:id="selectChartBox" onAction="#changeChart" prefHeight="27.0" prefWidth="692.0" promptText="Seleccione gráfica" style="-fx-background-color: #7AC8A7;" />
+                        <ImageView fitHeight="502.0" fitWidth="659.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                           <image>
+                              <Image url="@../Sin%20título-1.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </GridPane>
                </content>
             </Tab>
          </tabs>
