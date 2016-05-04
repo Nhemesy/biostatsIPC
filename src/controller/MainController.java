@@ -5,22 +5,12 @@
  */
 package controller;
 
-import java.io.File;
 import java.io.IOException;
-import static java.lang.Thread.sleep;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -35,23 +25,15 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import jgpx.model.analysis.Chunk;
 import jgpx.model.analysis.TrackData;
-import jgpx.model.gpx.Track;
-import jgpx.model.jaxb.GpxType;
-import jgpx.model.jaxb.TrackPointExtensionT;
 
 /**
  * FXML Controller class
@@ -63,28 +45,6 @@ public class MainController implements Initializable {
     @FXML
     private PieChart heartZonePieChart;
     @FXML
-    private Text dayText;
-    @FXML
-    private Text durationText;
-    @FXML
-    private Text movementTimeText;
-    @FXML
-    private Text distanceText;
-    @FXML
-    private Text altitudeText;
-    @FXML
-    private Text velocityText;
-    @FXML
-    private Text maxHeartFrecuencyText;
-    @FXML
-    private Text minHeartFrecuencyText;
-    @FXML
-    private Text normalHeartFrecuencyText;
-    @FXML
-    private Text maxCadenceText;
-    @FXML
-    private Text minCadenceText;
-    @FXML
     private GridPane chartContainer;
     @FXML
     private ComboBox<String> selectChartBox;
@@ -95,6 +55,46 @@ public class MainController implements Initializable {
     private StackPane stackPane;
     @FXML
     private AnchorPane root;
+    ;
+    @FXML
+    private Label normalSpeed;
+    @FXML
+    private Label maxSpeed;
+    @FXML
+    private Label maxCadence;
+    @FXML
+    private Label normalCadence;
+    @FXML
+    private Label riseAltitude;
+    @FXML
+    private Label fallAltitude;
+    ;
+    @FXML
+    private Label normalHeartRate;
+    @FXML
+    private Label minHeartRate;
+    @FXML
+    private Label maxHeartRate;
+    @FXML
+    private Text totalDistance;
+    @FXML
+    private ProgressBar normalHeartRateBar;
+    @FXML
+    private ProgressBar minHeartRateBar;
+    @FXML
+    private ProgressBar maxSpeedBar;
+    @FXML
+    private ProgressBar maxCadenceBar;
+    @FXML
+    private ProgressBar normalCadenceBar;
+    @FXML
+    private ProgressBar riseBar;
+    @FXML
+    private ProgressBar fallBar;
+    @FXML
+    private ProgressBar maxHeartRateBar;
+    @FXML
+    private ProgressBar normalSpeedBar;
 
     /**
      * Initializes the controller class.
@@ -104,36 +104,32 @@ public class MainController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        SelectGPXController.controller=this;
-         Stage stage = new Stage();
-           FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SelectGPX.fxml"));
-            loader.setResources(null);
-            stage.setTitle("SeleccioneGPX");
-            
-            try {
-                Parent root1 = (Parent) loader.load();
-                stage.initModality(Modality.WINDOW_MODAL);
-                stage.setAlwaysOnTop(true);
-                stage.setScene(new Scene(root1));
-                stage.show();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+        SelectGPXController.controller = this;
+        root.setDisable(true);
     }
 
     public void init() {
         root.setDisable(false);
-        dayText.setText("Actividad realizada el dia " + currentTrackData.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE));
-        durationText.setText("Tiempo total: " + formatDate(currentTrackData.getTotalDuration().getSeconds()));
-        movementTimeText.setText("Tiempo en movimiento: " + formatDate(currentTrackData.getMovingTime().getSeconds()));
-        distanceText.setText("Distancia recorrida: " + roundDouble(currentTrackData.getTotalDistance()) + " m");
-        altitudeText.setText("Desnivel acumulado: " + currentTrackData.getAverageHeight());
-        velocityText.setText("Velocidad-> Media: " + roundDouble(currentTrackData.getAverageSpeed()) + " km/h" + " Maxima: " + roundDouble(currentTrackData.getMaxSpeed()) + " km/h");
-        maxHeartFrecuencyText.setText("Maxima frecuencia cardiaca:" + currentTrackData.getMaxHeartrate());
-        minHeartFrecuencyText.setText("Minima frecuencia cardica: " + currentTrackData.getMinHeartRate());
-        normalHeartFrecuencyText.setText("Minima frecuencia cardiaca: " + currentTrackData.getAverageHeartrate());
-        maxCadenceText.setText("Maxima cadencia: " + currentTrackData.getMaxCadence());
-        minCadenceText.setText("Cadencia media: " + currentTrackData.getAverageCadence());
+        System.out.println(currentTrackData.getTotalDistance());
+        totalDistance.setText("Distancia recorrida: " + roundDouble(currentTrackData.getTotalDistance() / 1000) + " Km");
+        normalSpeed.setText(roundDouble(currentTrackData.getAverageSpeed()) + " km/h");
+        setProgress(normalSpeedBar,currentTrackData.getAverageSpeed(),currentTrackData.getMaxSpeed());
+        maxSpeed.setText(roundDouble(currentTrackData.getMaxSpeed()) + " km/h");
+        setProgress(maxSpeedBar,currentTrackData.getMaxSpeed(),currentTrackData.getMaxSpeed());
+        normalHeartRate.setText(currentTrackData.getAverageHeartrate() + " bpm");
+        setProgress(normalHeartRateBar,currentTrackData.getAverageHeartrate(),currentTrackData.getMaxHeartrate());
+        minHeartRate.setText(currentTrackData.getMinHeartRate() + " bpm");
+        setProgress(minHeartRateBar,currentTrackData.getMinHeartRate(),currentTrackData.getMaxHeartrate());
+        maxHeartRate.setText(currentTrackData.getMaxHeartrate() + " bpm");
+        setProgress(maxHeartRateBar,currentTrackData.getMaxHeartrate(),currentTrackData.getMaxHeartrate());
+        riseAltitude.setText(roundDouble(currentTrackData.getTotalAscent()) + " Km");
+        setProgress(riseBar,7,14);
+        fallAltitude.setText(roundDouble(currentTrackData.getTotalDescend()) + " Km");
+        setProgress(fallBar,3,13);
+        normalCadence.setText(currentTrackData.getAverageCadence() + " vpm");
+        setProgress(normalCadenceBar,currentTrackData.getAverageCadence(),currentTrackData.getMaxCadence());
+        maxCadence.setText(currentTrackData.getMaxCadence() + " vpm");
+        setProgress(maxCadenceBar,currentTrackData.getMaxCadence(),currentTrackData.getMaxCadence());
         updateHeartChart(35);
         selectChartBox.setItems(FXCollections.observableArrayList(new String[]{"Altura x Distancia", "Velocidad x Distancia",
             "FC x Distancia", "Cadencia x Distancia"}));
@@ -169,22 +165,7 @@ public class MainController implements Initializable {
         heartZonePieChart.setLegendSide(Side.LEFT);
         heartZonePieChart.setClockwise(false);
         heartZonePieChart.setLabelsVisible(true);
-
-        for (final PieChart.Data data : heartZonePieChart.getData()) {
-            data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,
-                    new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent e) {
-                            percentageText.setText(String.valueOf(data.getPieValue()) + "%");
-                            percentageText.setVisible(true);
-                            percentageText.setVisible(false);
-                        }
-                    });
-        }
-
     }
-
-
 
     public static String formatDate(long s) {
         String res = "";
@@ -202,7 +183,10 @@ public class MainController implements Initializable {
     }
 
     public static double roundDouble(double d) {
-        return (Math.round(d * 100)) / 100;
+        d = d * 100;
+        d = Math.round(d);
+        d = d / 100;
+        return d;
     }
 
     @FXML
@@ -213,22 +197,24 @@ public class MainController implements Initializable {
                 areaChart(altitudePerDistance(chuncks));
                 break;
             case 'V':
-                lineChart(speedPerDistance(chuncks));
+                lineChart(speedPerDistance(chuncks), "Velocidad (km/h)", "Distancia (Km)");
                 break;
             case 'F':
-                lineChart(fcPerDistance(chuncks));
+                lineChart(fcPerDistance(chuncks), "Frecuencia Cardíaca (bps)", "Distancia (Km)");
                 break;
             case 'C':
-                lineChart(cadencePerDistance(chuncks));
+                lineChart(cadencePerDistance(chuncks), "Cadencia (vps)", "Distancia (Km)");
                 break;
 
         }
     }
 
-    private void lineChart(ObservableList a) {
+    private void lineChart(ObservableList a, String y, String x) {
         chartContainer.getChildren().remove(1);
         LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
         lineChart.setData(a);
+        lineChart.getXAxis().setLabel(x);
+        lineChart.getYAxis().setLabel(y);
         lineChart.setTitle("Hey");
         lineChart.setMaxSize(1000000, 100000);
         lineChart.setCreateSymbols(false);
@@ -252,8 +238,8 @@ public class MainController implements Initializable {
 
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
-        for (int i = 0; i < list.size(); i += list.size() / 50) {
-            series.getData().add(new XYChart.Data(list.get(i).getGrade(), list.get(i).getDistance()));
+        for (int i = 0; i < list.size(); i++) {
+            series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getGrade()));
 
         }
         series.setName("Altitude per Distance");
@@ -266,7 +252,7 @@ public class MainController implements Initializable {
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
 
-        for (int i = 0; i < list.size(); i += list.size() / 50) {
+        for (int i = 0; i < list.size(); i++) {
             series.getData().add(new XYChart.Data(list.get(i).getSpeed(), list.get(i).getDistance()));
 
         }
@@ -280,7 +266,7 @@ public class MainController implements Initializable {
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
 
-        for (int i = 0; i < list.size(); i += list.size() / 500) {
+        for (int i = 0; i < list.size(); i++) {
             series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getAvgHeartRate()));
 
         }
@@ -293,12 +279,38 @@ public class MainController implements Initializable {
 
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
-        for (int i = 0; i < list.size(); i += list.size() / 50) {
+        for (int i = 0; i < list.size(); i++) {
             series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getAvgCadence()));
 
         }
         series.setName("Cadence per Distance");
         res.addAll(series);
         return res;
+    }
+
+    @FXML
+    private void openOtherGPX(ActionEvent event) {
+        SelectGPXController.controller = this;
+        Stage stage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SelectGPX.fxml"));
+        loader.setResources(null);
+        stage.setTitle("SeleccioneGPX");
+
+        try {
+            Parent root1 = (Parent) loader.load();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setAlwaysOnTop(true);
+            stage.setScene(new Scene(root1));
+            stage.show();
+        } catch (IOException ex) {
+        }
+    }
+    private void setProgress(ProgressBar bar,double valor,double max){
+        double maxim=Math.random();
+        if(maxim<0.7){
+            maxim=0.78;
+        }
+       valor=valor*maxim/max;
+       bar.setProgress(valor);
     }
 }
