@@ -1,0 +1,18 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : May 4, 2016, 11:55:09 AM
+    Author     : PedroDavidLP
+*/
+
+.root { -fx-background-color: cornsilk; -fx-padding: 15; }
+
+.progress-bar { -fx-box-border: goldenrod; }
+
+.high-bar  { -fx-accent: #303F9F;  }
+.mid-bar { -fx-accent: #5C6BC0; }
+.poor-bar { -fx-accent: #9FA8DA; }
+.zero-bar    { -fx-accent: #B3E5FC;    }

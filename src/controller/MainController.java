@@ -7,33 +7,42 @@ package controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ResourceBundle;
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Side;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import jgpx.model.analysis.Chunk;
 import jgpx.model.analysis.TrackData;
+import style.ColoredProgressBar;
 
 /**
  * FXML Controller class
@@ -49,10 +58,6 @@ public class MainController implements Initializable {
     @FXML
     private ComboBox<String> selectChartBox;
     public static TrackData currentTrackData;
-    @FXML
-    private Label percentageText;
-    @FXML
-    private StackPane stackPane;
     @FXML
     private AnchorPane root;
     ;
@@ -78,23 +83,17 @@ public class MainController implements Initializable {
     @FXML
     private Text totalDistance;
     @FXML
-    private ProgressBar normalHeartRateBar;
+    private GridPane activityContainer;
     @FXML
-    private ProgressBar minHeartRateBar;
+    private Text totalDuration;
     @FXML
-    private ProgressBar maxSpeedBar;
+    private Text totalMovement;
     @FXML
-    private ProgressBar maxCadenceBar;
+    private Text dateText;
     @FXML
-    private ProgressBar normalCadenceBar;
+    private Text introductionText;
     @FXML
-    private ProgressBar riseBar;
-    @FXML
-    private ProgressBar fallBar;
-    @FXML
-    private ProgressBar maxHeartRateBar;
-    @FXML
-    private ProgressBar normalSpeedBar;
+    private Button distanceTimeButton;
 
     /**
      * Initializes the controller class.
@@ -104,32 +103,37 @@ public class MainController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        SelectGPXController.controller = this;
-        root.setDisable(true);
+        init();
     }
 
     public void init() {
-        root.setDisable(false);
-        System.out.println(currentTrackData.getTotalDistance());
+        introductionText.setText("NeverStop! es una aplicación para organizarte con tu entrenamiento.\n\n"
+                + " Carga tus archivos GPX para ver tu actividad y tus estadísticas. ¡Tambien puedes comparar tus actividades!\n\n"
+                + " En la pestaña Actividad tendrás todo tipo de información de tu entrenamiento,"
+                + " y en estadísticas podrás ver diferentes gráficas para ilustrar tu avance. \n \n \n YOU! NeverStop!");
+        dateText.setText("Actividad del " + currentTrackData.getStartTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)));
         totalDistance.setText("Distancia recorrida: " + roundDouble(currentTrackData.getTotalDistance() / 1000) + " Km");
+        totalDuration.setText("Duracion total: " + formatDate(currentTrackData.getTotalDuration().getSeconds()));
+        totalMovement.setText("Tiempo en movimiento: " + formatDate(currentTrackData.getMovingTime().getSeconds()));
+
         normalSpeed.setText(roundDouble(currentTrackData.getAverageSpeed()) + " km/h");
-        setProgress(normalSpeedBar,currentTrackData.getAverageSpeed(),currentTrackData.getMaxSpeed());
+        setProgress(2, 3, currentTrackData.getAverageSpeed(), currentTrackData.getMaxSpeed());
         maxSpeed.setText(roundDouble(currentTrackData.getMaxSpeed()) + " km/h");
-        setProgress(maxSpeedBar,currentTrackData.getMaxSpeed(),currentTrackData.getMaxSpeed());
+        setProgress(5, 3, currentTrackData.getMaxSpeed(), currentTrackData.getMaxSpeed());
         normalHeartRate.setText(currentTrackData.getAverageHeartrate() + " bpm");
-        setProgress(normalHeartRateBar,currentTrackData.getAverageHeartrate(),currentTrackData.getMaxHeartrate());
+        setProgress(2, 6, currentTrackData.getAverageHeartrate(), currentTrackData.getMaxHeartrate());
         minHeartRate.setText(currentTrackData.getMinHeartRate() + " bpm");
-        setProgress(minHeartRateBar,currentTrackData.getMinHeartRate(),currentTrackData.getMaxHeartrate());
+        setProgress(5, 6, currentTrackData.getMinHeartRate(), currentTrackData.getMaxHeartrate());
         maxHeartRate.setText(currentTrackData.getMaxHeartrate() + " bpm");
-        setProgress(maxHeartRateBar,currentTrackData.getMaxHeartrate(),currentTrackData.getMaxHeartrate());
+        setProgress(5, 7, currentTrackData.getMaxHeartrate(), currentTrackData.getMaxHeartrate());
         riseAltitude.setText(roundDouble(currentTrackData.getTotalAscent()) + " Km");
-        setProgress(riseBar,7,14);
+        setProgress(2, 5, 7, 14);
         fallAltitude.setText(roundDouble(currentTrackData.getTotalDescend()) + " Km");
-        setProgress(fallBar,3,13);
+        setProgress(5, 5, 3, 13);
         normalCadence.setText(currentTrackData.getAverageCadence() + " vpm");
-        setProgress(normalCadenceBar,currentTrackData.getAverageCadence(),currentTrackData.getMaxCadence());
+        setProgress(2, 4, currentTrackData.getAverageCadence(), currentTrackData.getMaxCadence());
         maxCadence.setText(currentTrackData.getMaxCadence() + " vpm");
-        setProgress(maxCadenceBar,currentTrackData.getMaxCadence(),currentTrackData.getMaxCadence());
+        setProgress(5, 4, currentTrackData.getMaxCadence(), currentTrackData.getMaxCadence());
         updateHeartChart(35);
         selectChartBox.setItems(FXCollections.observableArrayList(new String[]{"Altura x Distancia", "Velocidad x Distancia",
             "FC x Distancia", "Cadencia x Distancia"}));
@@ -165,6 +169,7 @@ public class MainController implements Initializable {
         heartZonePieChart.setLegendSide(Side.LEFT);
         heartZonePieChart.setClockwise(false);
         heartZonePieChart.setLabelsVisible(true);
+        setupAnimation();
     }
 
     public static String formatDate(long s) {
@@ -191,56 +196,99 @@ public class MainController implements Initializable {
 
     @FXML
     private void changeChart(ActionEvent event) {
-        ObservableList<Chunk> chuncks = currentTrackData.getChunks();
+        ObservableList<Chunk> chunks = currentTrackData.getChunks();
+
         switch (selectChartBox.getSelectionModel().getSelectedItem().charAt(0)) {
             case 'A':
-                areaChart(altitudePerDistance(chuncks));
+                Task<ObservableList> task = new Task<ObservableList>() {
+
+                    @Override
+                    protected ObservableList<XYChart.Series<Double, Double>> call() throws Exception {
+                        Thread.sleep(5000);
+                        return altitudePerDistance(chunks);
+                    }
+                };
+                task.setOnSucceeded((WorkerStateEvent event1) -> {
+                    areaChart(task.getValue(), "Altura (m)", "Distancia (Km)");
+                });
+                Thread th = new Thread(task);
+                th.setDaemon(true);
+                th.start();
+
                 break;
             case 'V':
-                lineChart(speedPerDistance(chuncks), "Velocidad (km/h)", "Distancia (Km)");
+                lineChart(speedPerDistance(chunks), "Velocidad (km/h)", "Distancia (Km)");
                 break;
             case 'F':
-                lineChart(fcPerDistance(chuncks), "Frecuencia Cardíaca (bps)", "Distancia (Km)");
+                lineChart(fcPerDistance(chunks), "Frecuencia Cardíaca (bps)", "Distancia (Km)");
                 break;
             case 'C':
-                lineChart(cadencePerDistance(chuncks), "Cadencia (vps)", "Distancia (Km)");
+                lineChart(cadencePerDistance(chunks), "Cadencia (vps)", "Distancia (Km)");
                 break;
 
         }
     }
 
+    private void setupAnimation() {
+        heartZonePieChart.getData().stream().forEach(pieData -> {
+            System.out.println(pieData.getName() + ": " + pieData.getPieValue());
+            if (pieData.getPieValue() == 0) {
+            } else {
+                pieData.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+                    Bounds b1 = pieData.getNode().getBoundsInLocal();
+                    double newX = (b1.getWidth()) / 2 + b1.getMinX();
+                    double newY = (b1.getHeight()) / 2 + b1.getMinY();
+                    pieData.getNode().setTranslateX(0);
+                    pieData.getNode().setTranslateY(0);
+
+                    TranslateTransition tt = new TranslateTransition(
+                            Duration.millis(3000), pieData.getNode());
+                    tt.setByX(newX);
+                    tt.setByY(newY);
+                    tt.setAutoReverse(true);
+                    tt.setCycleCount(2);
+                    tt.play();
+                });
+            }
+        });
+    }
+
     private void lineChart(ObservableList a, String y, String x) {
-        chartContainer.getChildren().remove(1);
+
+        chartContainer.getChildren().remove(2);
         LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
         lineChart.setData(a);
         lineChart.getXAxis().setLabel(x);
         lineChart.getYAxis().setLabel(y);
-        lineChart.setTitle("Hey");
+        lineChart.setTitle(y + " por " + x);
         lineChart.setMaxSize(1000000, 100000);
         lineChart.setCreateSymbols(false);
-        GridPane.setColumnSpan(lineChart, 2);
+        lineChart.setAnimated(true);
         chartContainer.add(lineChart, 0, 1);
 
     }
 
-    private void areaChart(ObservableList a) {
-        chartContainer.getChildren().remove(1);
+    private void areaChart(ObservableList a, String y, String x) {
+        chartContainer.getChildren().remove(2);
         AreaChart areaChart = new AreaChart(new NumberAxis(), new NumberAxis());
+        areaChart.getXAxis().setLabel(x);
+        areaChart.getYAxis().setLabel(y);
         areaChart.setData(a);
-        areaChart.setTitle("que tal");
+        areaChart.setTitle(y + " por " + x);
         areaChart.setMaxSize(1000000, 100000);
         areaChart.setCreateSymbols(false);
-        GridPane.setColumnSpan(areaChart, 2);
         chartContainer.add(areaChart, 0, 1);
     }
 
     private ObservableList<XYChart.Series<Double, Double>> altitudePerDistance(ObservableList<Chunk> list) {
-
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
+        double distance = 0;
+        double grade = 0;
         for (int i = 0; i < list.size(); i++) {
-            series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getGrade()));
-
+            distance += list.get(i).getDistance();
+            grade += list.get(i).getAscent() - list.get(i).getDescend();
+            series.getData().add(new XYChart.Data(distance / 1000, grade));
         }
         series.setName("Altitude per Distance");
         res.addAll(series);
@@ -251,12 +299,30 @@ public class MainController implements Initializable {
 
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
-
+        double distance = 0;
         for (int i = 0; i < list.size(); i++) {
-            series.getData().add(new XYChart.Data(list.get(i).getSpeed(), list.get(i).getDistance()));
+            distance += list.get(i).getDistance();
+            series.getData().add(new XYChart.Data(distance / 1000, list.get(i).getSpeed()));
+            System.out.println(list.get(i).getDistance() + "acumulada: " + distance);
 
         }
-        series.setName("Altitude per Distance");
+        series.setName("Speed per Distance");
+        res.addAll(series);
+        return res;
+    }
+
+    private ObservableList<XYChart.Series<Double, Double>> speedPerTime(ObservableList<Chunk> list) {
+
+        ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
+        Series<Double, Double> series = new Series<>();
+        double time = 0;
+        for (int i = 0; i < list.size(); i++) {
+            time += list.get(i).getDuration().getSeconds();
+            series.getData().add(new XYChart.Data(time, list.get(i).getSpeed()));
+            System.out.println(list.get(i).getDistance() + "acumulada: " + time);
+
+        }
+        series.setName("Speed per Distance");
         res.addAll(series);
         return res;
     }
@@ -265,12 +331,13 @@ public class MainController implements Initializable {
 
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
-
+        double distance = 0;
         for (int i = 0; i < list.size(); i++) {
-            series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getAvgHeartRate()));
+            distance += list.get(i).getDistance();
+            series.getData().add(new XYChart.Data(distance / 1000, list.get(i).getAvgHeartRate()));
 
         }
-        series.setName("Altitude per Distance");
+        series.setName("Heart Rate per Distance");
         res.addAll(series);
         return res;
     }
@@ -279,8 +346,10 @@ public class MainController implements Initializable {
 
         ObservableList<XYChart.Series<Double, Double>> res = FXCollections.observableArrayList();
         Series<Double, Double> series = new Series<>();
+        double distance = 0;
         for (int i = 0; i < list.size(); i++) {
-            series.getData().add(new XYChart.Data(list.get(i).getDistance(), list.get(i).getAvgCadence()));
+            distance += list.get(i).getDistance();
+            series.getData().add(new XYChart.Data(distance / 1000, list.get(i).getAvgCadence()));
 
         }
         series.setName("Cadence per Distance");
@@ -305,12 +374,54 @@ public class MainController implements Initializable {
         } catch (IOException ex) {
         }
     }
-    private void setProgress(ProgressBar bar,double valor,double max){
-        double maxim=Math.random();
-        if(maxim<0.7){
-            maxim=0.78;
+
+    private void setProgress(int column, int row, double value, double max) {
+        double maxim = Math.random();
+        if (maxim < 0.7) {
+            maxim = 0.78;
         }
-       valor=valor*maxim/max;
-       bar.setProgress(valor);
+        value = value * maxim / max;
+        String color = "";
+        if (value > 0.78) {
+            color = "high-bar";
+        } else if (value > 0.50) {
+            color = "mid-bar";
+        } else if (value > 0.25) {
+            color = "poor-bar";
+        } else {
+            color = "zero-bar";
+        }
+
+        ColoredProgressBar bar = new ColoredProgressBar(color, value);
+        bar.setMinSize(130, 20);
+        bar.setMaxSize(130, 20);
+        if (row == 6 && column == 2) {
+            GridPane.setRowSpan(bar, 2);
+        }
+        activityContainer.add(bar, column, row);
+    }
+
+    @FXML
+    private void changeTimeDistance(ActionEvent event) {
+        switch (selectChartBox.getSelectionModel().getSelectedItem().charAt(0)) {
+            case 'A':
+                AreaChart chart = (AreaChart) chartContainer.getChildren().get(2);
+                if ("Distancia (Km)".equals(chart.getXAxis().getLabel())) {
+                  chart.setData(speedPerTime(currentTrackData.getChunks()));
+                }else{
+                  chart.setData(speedPerDistance(currentTrackData.getChunks()));
+                }
+                break;
+            case 'V':
+                ((LineChart) chartContainer.getChildren().get(2)).setData(speedPerTime(currentTrackData.getChunks()));
+                break;
+            case 'F':
+                ((LineChart) chartContainer.getChildren().get(2)).setData(speedPerTime(currentTrackData.getChunks()));
+                break;
+            case 'C':
+                ((LineChart) chartContainer.getChildren().get(2)).setData(speedPerTime(currentTrackData.getChunks()));
+                break;
+        }
+
     }
 }
